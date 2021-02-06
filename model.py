@@ -92,6 +92,7 @@ def train(
             smart_print(start, len(dataset), j + 1, i + 1, epochs, gen_loss, disc_loss)
 
         if (i + 1) % save_every_n_epochs == 0:
+            print(f"Saving weights for epoch {i + 1}")
             checkpoint.save(file_prefix = checkpoint_prefix)
 
         generate_and_save_images(generator, i, test_noise, True)
@@ -137,7 +138,7 @@ def main(
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('--n_epochs', type=int)
+    parser.add_argument('--n_epochs', type=int, default=100)
     parser.add_argument('--save_every_n_epochs', default=5, type=int)
     parser.add_argument('--batch_size', default=20, type=int)
     parser.add_argument('--gen_input_dim', help="the dimension of the input vector to the generator.", type=int)
