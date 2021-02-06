@@ -6,35 +6,39 @@ def GeneratorModel(
     input_dim, 
     num_channels
 ) -> tf.keras.Model:
-  input = layers.Input(shape=(input_dim, ))
-  x = layers.Dense(8*8*256, use_bias=False)(input)
-  x = layers.BatchNormalization()(x)
-  x = layers.LeakyReLU()(x)
+    input = layers.Input(shape=(input_dim, ))
+    x = layers.Dense(8*8*256, use_bias=False)(input)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
 
-  # reshape
-  x = layers.Reshape((8, 8, 256))(x)
-  x = layers.Conv2DTranspose(128, (5,5), strides=(1,1), padding="same", use_bias=False)(x)
-  x = layers.BatchNormalization()(x)
-  x = layers.LeakyReLU()(x)
+    # reshape
+    x = layers.Reshape((8, 8, 256))(x)
+    x = layers.Conv2DTranspose(256, (5,5), strides=(2,2), padding="same", use_bias=False)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
+    
+    x = layers.Conv2DTranspose(128, (5,5), strides=(2,2), padding="same", use_bias=False)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
+    
+    x = layers.Conv2DTranspose(64, (5,5), strides=(2,2), padding="same", use_bias=False)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
 
-  x = layers.Conv2DTranspose(64, (5,5), strides=(2,2), padding="same", use_bias=False)(x)
-  x = layers.BatchNormalization()(x)
-  x = layers.LeakyReLU()(x)
+    x = layers.Conv2DTranspose(32, (5,5), strides=(2,2), padding="same", use_bias=False, activation="tanh")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
 
-  x = layers.Conv2DTranspose(32, (5,5), strides=(2,2), padding="same", use_bias=False, activation="tanh")(x)
-  x = layers.BatchNormalization()(x)
-  x = layers.LeakyReLU()(x)
+    x = layers.Conv2DTranspose(16, (5,5), strides=(2,2), padding="same", use_bias=False, activation="tanh")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
 
-  x = layers.Conv2DTranspose(16, (5,5), strides=(2,2), padding="same", use_bias=False, activation="tanh")(x)
-  x = layers.BatchNormalization()(x)
-  x = layers.LeakyReLU()(x)
+    x = layers.Conv2DTranspose(num_channels, (5,5), strides=(2,2), padding="same", use_bias=False, activation="tanh")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.LeakyReLU()(x)
 
-  x = layers.Conv2DTranspose(num_channels, (5,5), strides=(2,2), padding="same", use_bias=False, activation="tanh")(x)
-  x = layers.BatchNormalization()(x)
-  x = layers.LeakyReLU()(x)
-
-  model = tf.keras.Model(input, x)
-  return model
+    model = tf.keras.Model(input, x)
+    return model
 
 
 def generator_loss(
