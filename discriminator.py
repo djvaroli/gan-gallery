@@ -64,5 +64,5 @@ def discriminator_loss(
         tf.random.normal(wrong_image_real_caption_output.shape, mean=0.0, stddev=0.05),
         wrong_image_real_caption_output
     )
-
+    
     return .25*loss_0 + 0.25*loss_1 + 0.25*loss_2 + 0.25*loss_3

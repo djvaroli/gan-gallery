@@ -128,13 +128,13 @@ class DataGenerator():
             
         return wrong_labels, tf.convert_to_tensor(wrong_image_arrays)
     
-    def _load_image_as_np_array(self, image_index, standerdize=True):
+    def _load_image_as_np_array(self, image_index, normalize=True):
         path_to_image = f"{self.image_dir_path}/image_{image_index}"
         img = Image.open(path_to_image)
         image_as_array = np.asarray(img)
         img.close()
-        if standerdize:
-            image_as_array = image_as_array / 255.
+        if normalize:
+            image_as_array = (image_as_array - 122.5) / 122.5
         
         return image_as_array
     

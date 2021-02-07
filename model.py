@@ -107,7 +107,7 @@ def train(
         
         identifier = checkpoint_prefix.split(os.sep)[0]
         saved_images_dir_prefix = f"saved_images_{identifier}"
-        generate_and_save_images(generator, i, test_noise, saved_images_dir_prefix, False)
+        generate_and_save_images(generator, i, test_noise, saved_images_dir_prefix)
 
 
 def main(

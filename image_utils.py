@@ -2,23 +2,24 @@ from matplotlib import pyplot as plt
 import numpy as np
 import os
 
-def generate_and_save_images(model, epoch, test_input, dir_prefix, plot_images=False):
+import tensorflow as tf
+
+def generate_and_save_images(model, epoch, test_input, dir_prefix, show_images=False):
   # Notice `training` is set to False.
   # This is so all layers run in inference mode (batchnorm).
   predictions = model(test_input, training=False)
+  predictions = tf.cast(predictions * 122.5 + 122.5, dtype=tf.int32) # convert to int for plotting
 
-  if plot_images:
-    fig = plt.figure(figsize=(16,16))
+  fig, axs = plt.subplots(1, predictions.shape[0], figsize=(16, 16))
 
-    for i in range(predictions.shape[0]):
-        plt.subplot(4, 4, i+1)
-        plt.imshow(predictions[i])
-        plt.axis('off')
+  for i, ax in enumerate(axs.flatten()):
+    ax.imshow(predictions[i])
+    ax.axis('off')
 
   if os.path.isdir(dir_prefix) is False:
     os.mkdir(dir_prefix)
   
   plt.savefig(f'{dir_prefix}/image_at_epoch_{epoch: 04d}.png')
 
-  if plot_images:
+  if show_images:
     plt.show()
