@@ -5,6 +5,7 @@ from datetime import datetime as dt
 import os
 
 import tensorflow as tf
+import numpy as np
 
 from generator import GeneratorModel, generator_loss
 from discriminator import DiscriminatorModel, discriminator_loss
@@ -72,12 +73,19 @@ def train(
     epochs = args.n_epochs
     save_every_n_epochs = args.save_every_n_epochs
     gen_input_dim = args.gen_input_dim # noise_dim + 300 for the gensim word embeddings
-    test_noise = tf.random.normal([4, gen_input_dim])
+    embedded_labels_dim = args.embedded_labels_dim
+    test_noise = tf.random.normal([4, int(gen_input_dim - embedded_labels_dim)])
+    test_labels = ['horse', 'train', 'boat']
+    embedded_test_labels = np.tile(dataset.embed_words(test_labels), [4,1])
+    test_noise = tf.concat((test_noise, embedded_test_labels), axis=1)
 
+    num_iterations = args.test_iterations or len(dataset)
+    
     for i in range(epochs):
         start = time()
 
-        for j, (true_labels, real_images, wrong_labels, wrong_images) in enumerate(dataset):
+        for j in range(num_iterations):
+            true_labels, real_images, wrong_labels, wrong_images = dataset[j]
             gen_loss, disc_loss = train_step(
                 generator, 
                 discriminator, 
@@ -89,13 +97,17 @@ def train(
                 wrong_captions=wrong_labels, 
                 args=args
             )
-            smart_print(start, len(dataset), j + 1, i + 1, epochs, gen_loss, disc_loss)
+            smart_print(start, num_iterations, j + 1, i + 1, epochs, gen_loss, disc_loss)
 
+        dataset.on_epoch_end()
+        
         if (i + 1) % save_every_n_epochs == 0:
             print(f"Saving weights for epoch {i + 1}")
             checkpoint.save(file_prefix = checkpoint_prefix)
-
-        generate_and_save_images(generator, i, test_noise, True)
+        
+        identifier = checkpoint_prefix.split(os.sep)[0]
+        saved_images_dir_prefix = f"saved_images_{identifier}"
+        generate_and_save_images(generator, i, test_noise, saved_images_dir_prefix, False)
 
 
 def main(
@@ -113,7 +125,7 @@ def main(
     embedded_labels_shape = (embedded_labels_dim, )
 
     # this will be the dataset, which we will iterate over during training
-    data_generator = DataGenerator(batch_size=batch_size)
+    data_generator = DataGenerator(batch_size=batch_size, word_embedding_dim=embedded_labels_dim)
 
     # the models themselves and the optimizers
     generator_optimizer = tf.keras.optimizers.Adam(1e-4)
@@ -124,7 +136,7 @@ def main(
 
     # checkpointing to save intermediate model states
     model_date_key = dt.now().isoformat()
-    checkpoint_dir = f"./gan_paintings_w_labels_{model_date_key}"
+    checkpoint_dir = f"gan_paintings_w_labels_{model_date_key}"
     checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
 
     checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
@@ -133,18 +145,28 @@ def main(
                                     discriminator=discriminator)
 
     # train the model
-    train(data_generator, generator, discriminator, generator_optimizer, discriminator_optimizer, checkpoint, checkpoint_prefix, args)
+    train(
+        data_generator, 
+        generator, 
+        discriminator, 
+        generator_optimizer, 
+        discriminator_optimizer, 
+        checkpoint, 
+        checkpoint_prefix, 
+        args
+    )
 
 
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--n_epochs', type=int, default=100)
-    parser.add_argument('--save_every_n_epochs', default=5, type=int)
+    parser.add_argument('--save_every_n_epochs', default=1, type=int)
     parser.add_argument('--batch_size', default=20, type=int)
-    parser.add_argument('--gen_input_dim', help="the dimension of the input vector to the generator.", type=int)
+    parser.add_argument('--gen_input_dim', help="the dimension of the input vector to the generator.", type=int, default=400)
     parser.add_argument('--embedded_labels_dim', help="Dimension of the word-embeddings of labels.", type=int, default=300)
     parser.add_argument('--image_dim', help="Length of side of image in pixels. Images are assumed to be square", type=int, default=512)
     parser.add_argument('--num_channels', help="Number of channels of the images in the dataser", type=int, default=3)
+    parser.add_argument('--test_iterations', help="For testing", type=int, default=0)
 
     args = parser.parse_args()
 

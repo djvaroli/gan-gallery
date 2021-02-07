@@ -1,2 +1,5 @@
 venv/*
 gan_paintings_organized_data/*
+saved_images*
+gan_paintings*
+__pycache__
