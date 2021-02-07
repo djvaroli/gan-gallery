@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import layers as layers
-
+from tensorflow.initializers import GlorotNormal
 
 def DiscriminatorModel(
     image_shape: tuple, 
@@ -23,12 +23,11 @@ def DiscriminatorModel(
 
   x = layers.Flatten()(x) 
   x = layers.Concatenate(axis=1)([x, embedded_labels]) # concatenate along row
-  x = layers.Dense(1)(x) 
+  x = layers.Dense(1, activation="sigmoid", kernel_regularizer=GlorotNormal)(x) 
 
   model = tf.keras.Model([image_input,labels_input], x)
 
   return model
-  # x = layers.Conv2D()
 
 
 def discriminator_loss(
