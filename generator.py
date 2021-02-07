@@ -25,15 +25,15 @@ def GeneratorModel(
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
 
-    x = layers.Conv2DTranspose(32, (5,5), strides=(2,2), padding="same", use_bias=False, activation="tanh")(x)
+    x = layers.Conv2DTranspose(32, (5,5), strides=(2,2), padding="same", use_bias=False, activation="sigmoid")(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
 
-    x = layers.Conv2DTranspose(16, (5,5), strides=(2,2), padding="same", use_bias=False, activation="tanh")(x)
+    x = layers.Conv2DTranspose(16, (5,5), strides=(2,2), padding="same", use_bias=False, activation="sigmoid")(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
 
-    x = layers.Conv2DTranspose(num_channels, (5,5), strides=(2,2), padding="same", use_bias=False, activation="tanh")(x)
+    x = layers.Conv2DTranspose(num_channels, (5,5), strides=(2,2), padding="same", use_bias=False, activation="sigmoid")(x)
     x = layers.BatchNormalization()(x)
     x = layers.LeakyReLU()(x)
 
