@@ -134,6 +134,19 @@ def main(
     generator = GeneratorModel(input_dim=gen_input_dim, num_channels=num_channels)
     discriminator = DiscriminatorModel(image_shape=disc_input_image_shape, embedded_labels_shape=embedded_labels_shape)
 
+    print(f"Generator summary".center(100, "-"))
+    print(generator.summary())
+    print(f"Discriminator summary".center(100, "-"))
+    print(discriminator.summary())
+    continue_training = input(f"Continue with model training? (y/n): ")
+    while continue_training.lower() not in ["y", "n", "yes", "no"]:
+        print(f"{continue_training} is not a valid response.")
+        continue_training = input(f"Continue with model training? (y/n): ")
+    
+    if continue_training.lower() == "n":
+        print("Terminating.")
+        return
+
     # checkpointing to save intermediate model states
     model_date_key = dt.now().isoformat()
     checkpoint_dir = f"gan_paintings_w_labels_{model_date_key}"
