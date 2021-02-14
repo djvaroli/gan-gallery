@@ -48,8 +48,8 @@ def GeneratorModelMNIST(
     input = layers.Input(shape=(noise_dim,))
 
     x = layers.Dense(7*7*256, use_bias=False)(input)
-    x = layers.Dropout(0.5)
-    x = layers.BatchNormalization(momentum=batch_norm_momentum)
+    x = layers.Dropout(0.5)(x)
+    x = layers.BatchNormalization(momentum=batch_norm_momentum)(x)
     x = layers.LeakyReLU(alpha=alpha)(x)
     x = layers.Reshape((7, 7, 256))(x)
 

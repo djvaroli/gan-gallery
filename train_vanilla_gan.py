@@ -70,11 +70,6 @@ def _train_vanilla_gan_on_mnist(args):
             general_utils.smart_print(start, len(data_generator), i, epoch, n_epochs, gen_loss, disc_loss)
 
 
-
-
-
-
-
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--model_name", type=str)

@@ -8,27 +8,53 @@ from tensorflow.keras.callbacks import Callback, ModelCheckpoint
 
 import image_utils
 
-class SimpleModelCheckPoint(ModelCheckpoint):
+class SimpleGANCheckPoint(Callback):
     """
     Wrapper around the tf.keras.callbacks.ModelCheckpoint with the added
     feature of a default file path
     """
     def __init__(
         self, 
-        filepath=None, 
-        model_name="saved_model", 
-        model = None,
+        gen_model: tf.keras.models.Model,
+        disc_model: tf.keras.models.Model,
+        model_name: str = "saved_model", 
+        filepath: str = None,
+        save_frequency: int = 1,
         *args, 
         **kwargs
     ):
-        if filepath is None:
-            date_key = dt.today().strftime("%Y-%m-%dT%H-%M")
-            dir = Path(f"{model_name}_{date_key}")
-            if os.path.isdir(dir) is False:
-                os.mkdir(dir)
-            filepath = str(dir / "weights.{epoch:02d}-{loss:.2f}.hdf5")
-        
-        super(SimpleModelCheckPoint, self).__init__(filepath, *args, **kwargs)
+        self.save_frequency = save_frequency
+        self.gen_model = gen_model
+        self.disc_model = disc_model
+        self.model_name = model_name
+
+        if not filepath:
+            self.save_directory = self.__generate_save_directory_name()
+            self.filepath = self.__generate_save_path_template()
+        else:
+            self.filepath = filepath
+
+    def __generate_save_directory_name(self):
+        date_key = dt.today().strftime("%Y-%m-%dT%H-%M")
+        directory = Path(f"{self.model_name}_{date_key}_saved_weights")
+        if os.path.isdir(directory) is False:
+            os.mkdir(directory)
+
+        return directory 
+    
+    def __generate_save_path_template(self):
+        return str(self.save_directory / "weights-{model_name}-{epoch:02d}-{loss:.2f}.hdf5")
+
+    def on_epoch_end(self, epoch, logs=None):
+        generator_loss = logs['generator_loss']
+        discriminator_loss = logs['discriminator_loss']
+
+        if epoch % self.save_frequency == 0:
+            gen_weights_path = self.filepath.format(model_name="generator", epoch=epoch, loss=generator_loss)
+            disc_weights_path = self.filepath.format(model_name="discriminator", epoch=epoch, loss=discriminator_loss)
+
+            self.gen_model.save_weights(gen_weights_path)
+            self.disc_model.save_weights(disc_weights_path)
 
 
 class PlotAndSaveImages(Callback):
