@@ -7,13 +7,15 @@ import logging
 from logging import getLogger
 
 import numpy as np
+from tf.keras.utils import Sequence
 import tensorflow as tf
 import gensim.downloader 
 
 logger = getLogger("DataGenerator")
 logger.setLevel(logging.INFO)
 
-class DataGenerator():
+
+class ImagesWithLabelsDataGenerator(Sequence):
     def __init__(
         self,
         index_to_label_fp = "gan_paintings_organized_data/index_to_labels_512.json", 
@@ -25,6 +27,7 @@ class DataGenerator():
         word_embedding_dim = 300
     ) -> None:
         # load in the forward and backward index - label mappings
+        super(ImagesWithLabelsDataGenerator, self).__init__()
         print("Loading index <-> labels mappings")
         self.index_to_label = self.load_in_json_file(index_to_label_fp)
         self.label_to_indices = self.load_in_json_file(label_to_indices_fp)
@@ -145,4 +148,20 @@ class DataGenerator():
 
     def on_epoch_end(self):
         random.shuffle(self.shuffled_image_indices)
+
+
+def get_mnist_dataset(
+    buffer_size: int = 60000,
+    batch_size: int = 256,
+    normalize_data: bool = True
+):
+    (train_images, train_labels), (_,_) = tf.keras.datasets.mnist.load_data()
+    train_images = np.expand_dims(train_images, axis=-1).astype("float32")
+    if normalize_data:
+        train_images = (train_images - 127.5) / 127.5 
+    
+    return tf.data.Dataset.from_tensor_slices(train_images).shuffle(buffer_size).batch(batch_size)
+
+
+
 
