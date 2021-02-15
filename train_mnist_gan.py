@@ -15,13 +15,14 @@ import general_utils
 def train_vanilla_gan_on_mnist(args):
     n_epochs = args.n_epochs
     batch_size = args.batch_size
+    model_name = args.model_name
 
     generator_model = GeneratorModelMNIST(**args)
     discriminator_model = DiscriminatorModelMNIST(**args)
     generator_optimizer = Adam(1e-4)
     discriminator_optimizer = Adam(1e-4)
 
-    data_generator = get_mnist_dataset()
+    data_generator = get_mnist_dataset(batch_size=batch_size)
 
     noise_dim = args.generator_noise_dim
     num_examples_to_generate = args.num_examples_to_generate
@@ -33,7 +34,7 @@ def train_vanilla_gan_on_mnist(args):
         model_name=model_name
     )
 
-    ckpt = ml_utils.SimpleGANCheckPoint(gen_model=generator_model, disc_model=discriminator_model, model_name="gan-mnist")
+    ckpt = ml_utils.SimpleGANCheckPoint(gen_model=generator_model, disc_model=discriminator_model, model_name=model_name)
 
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
         for epoch in range(n_epochs):
@@ -54,18 +55,17 @@ def train_vanilla_gan_on_mnist(args):
                 generator_optimizer.apply_gradients(zip(gen_gradients, generator_model.trainable_variables))
                 discriminator_optimizer.apply_gradients(zip(disc_gradients, discriminator_model.trainable_variables))
 
-            logs = {"loss": gen_loss}
-            ckpt.on_epoch_end(epoch=epoch)    
+            logs = {"generator_loss": gen_loss, "discriminator_loss": disc_loss}
+            ckpt.on_epoch_end(epoch=epoch, logs=logs)    
             plotting_callback.on_train_end()
             general_utils.smart_print(start, len(data_generator), i, epoch, n_epochs, gen_loss, disc_loss)
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--model_name", type=str)
+    parser.add_argument("--model_name", type=str, default="gan-mnist")
     parser.add_argument("--n_epochs", type=int, default=10)
     parser.add_argument("--noise_dim", type=int, default=100, help="dimension of the noise to be used as input to the generator.")
-    parser.add_argument("--image_size", type=int, default=512, help="The length/width of the image. Images are assumed to be square.")
-    parser.add_argument("--use_mnist_dataset", action="store_true")
+    parser.add_argument("--image_size", type=int, default=28, help="The length/width of the image. Images are assumed to be square.")
     parser.add_argument("--num_examples_to_generate", type=int, default=4)
     
