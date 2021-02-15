@@ -4,4 +4,5 @@ saved_images*
 gan_paintings*
 __pycache__
 
-saved_model_*
+*_output_images
+*_saved_weights

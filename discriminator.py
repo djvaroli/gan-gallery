@@ -35,9 +35,10 @@ def DiscriminatorModelMNIST(*args, **kwargs):
 
     x = convultion_block(input, filters=64)
     x = convultion_block(x, filters=128)
+    x = convultion_block(x, filters=256)
 
     x = layers.Flatten()(x)
-    x = layers.Dense(1, activation="sigmoid", kernel_initializer=GlorotNormal)(x)
+    x = layers.Dense(1)(x)
 
     return tf.keras.Model(input, x)
 
@@ -125,6 +126,6 @@ def discriminator_loss_with_embedded_text(
 def discriminator_loss(real_output, fake_output):
     cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
     real_loss = cross_entropy(tf.ones_like(real_output), real_output)
-    fake_loss = cross_entropy(tf.ones_like(fake_output), fake_output)
+    fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
 
     return real_loss + fake_loss

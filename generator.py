@@ -48,15 +48,24 @@ def GeneratorModelMNIST(
     input = layers.Input(shape=(noise_dim,))
 
     x = layers.Dense(7*7*256, use_bias=False)(input)
-    x = layers.Dropout(0.5)(x)
+    x = layers.Dropout(0.3)(x)
     x = layers.BatchNormalization(momentum=batch_norm_momentum)(x)
     x = layers.LeakyReLU(alpha=alpha)(x)
     x = layers.Reshape((7, 7, 256))(x)
 
-    x = conv_2d_transpose_layer_block(x, 128, strides=(1,1)) # (None, 7, 7, 128)
-    x = conv_2d_transpose_layer_block(x, 64) # (None, 14, 14, 64)
-    x = conv_2d_transpose_layer_block(x, 32, strides=(1,1)) # (None, 14, 14, 32)
-    x = conv_2d_transpose_layer_block(x, 1, activation="tanh") # (None, 28, 28, 1)
+    x = layers.Conv2DTranspose(128, (5, 5), strides=(1, 1), padding='same', use_bias=False)(x)
+    x = layers.BatchNormalization(momentum=batch_norm_momentum)(x)
+    x = layers.LeakyReLU(alpha=alpha)(x)
+
+    x = layers.Conv2DTranspose(64, (5, 5), strides=(2, 2), padding='same', use_bias=False)(x)
+    x = layers.BatchNormalization(momentum=batch_norm_momentum)(x)
+    x = layers.LeakyReLU(alpha=alpha)(x)
+
+    x = layers.Conv2DTranspose(32, (5, 5), strides=(1, 1), padding='same', use_bias=False)(x)
+    x = layers.BatchNormalization(momentum=batch_norm_momentum)(x)
+    x = layers.LeakyReLU(alpha=alpha)(x)
+    
+    x = layers.Conv2DTranspose(1, (5, 5), strides=(2, 2), padding='same', use_bias=False, activation="tanh")(x)
 
     return tf.keras.Model(input, x)
 

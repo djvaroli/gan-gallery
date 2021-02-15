@@ -43,7 +43,7 @@ class SimpleGANCheckPoint(Callback):
         return directory 
     
     def __generate_save_path_template(self):
-        return str(self.save_directory / "weights-{model_name}-{epoch:02d}-{loss:.2f}.hdf5")
+        return str(self.save_directory / "weights-{model_name}-{epoch:04d}-{loss:.4f}.hdf5")
 
     def on_epoch_end(self, epoch, logs=None):
         generator_loss = logs['generator_loss']
@@ -81,7 +81,7 @@ class PlotAndSaveImages(Callback):
     
     def on_epoch_end(self, epoch, keys=None):
         if self.save_frequency == "epoch" and epoch % self.patience == 0:
-            test_prediction = self.model.predict(self.test_input)
+            test_prediction = self.model(self.test_input, training=False)
             savepath = self.save_path.format(epoch=epoch)
             image_utils.generate_and_save_images(test_prediction, savepath)
         
@@ -94,4 +94,4 @@ class PlotAndSaveImages(Callback):
         return dir 
     
     def __generate_save_path_template(self):
-        return str(self.save_directory / "image_at_epoch_{epoch:02d}.png")
+        return str(self.save_directory / "image_at_epoch_{epoch:04d}.png")
