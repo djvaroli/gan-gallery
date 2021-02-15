@@ -3,3 +3,5 @@ gan_paintings_organized_data/*
 saved_images*
 gan_paintings*
 __pycache__
+
+saved_model_*

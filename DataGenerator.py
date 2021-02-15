@@ -7,7 +7,7 @@ import logging
 from logging import getLogger
 
 import numpy as np
-from tf.keras.utils import Sequence
+from tensorflow.keras.utils import Sequence
 import tensorflow as tf
 import gensim.downloader 
 

@@ -78,7 +78,6 @@ class PlotAndSaveImages(Callback):
 
         if model:
             self.model = model
-        super(PlotAndSaveImages, self).__init__()
     
     def on_epoch_end(self, epoch, keys=None):
         if self.save_frequency == "epoch" and epoch % self.patience == 0:

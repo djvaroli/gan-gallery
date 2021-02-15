@@ -29,11 +29,13 @@ def train_vanilla_gan_on_mnist(args):
 
     plotting_callback = ml_utils.PlotAndSaveImages(
         test_input=seed,
-        model = generator_model,
+        model=generator_model,
         model_name=model_name
     )
-    gen_ckpt = ml_utils.SimpleModelCheckPoint(model_name="mnist_generator", model=generator_model)
-    disc_ckpt = ml_utils.SimpleModelCheckPoint(model_name="mnist_discriminator", model=discriminator_model)
+
+    ckpt = ml_utils.
+    gen_ckpt = ml_utils.SimpleGANCheckPoint(model_name="mnist_generator", model=generator_model)
+    disc_ckpt = ml_utils.SimpleGANCheckPoint(model_name="mnist_discriminator", model=discriminator_model)
     num_iterations = len(data_generator)
 
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
