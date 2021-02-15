@@ -32,9 +32,8 @@ def train_vanilla_gan_on_mnist(args):
         model = generator_model,
         model_name=model_name
     )
-    gen_ckpt = ml_utils.SimpleModelCheckPoint(model_name="mnist_generator", model=generator_model)
-    disc_ckpt = ml_utils.SimpleModelCheckPoint(model_name="mnist_discriminator", model=discriminator_model)
-    num_iterations = len(data_generator)
+
+    ckpt = ml_utils.SimpleGANCheckPoint(gen_model=generator_model, disc_model=discriminator_model, model_name="gan-mnist")
 
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
         for epoch in range(n_epochs):
