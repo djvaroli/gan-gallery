@@ -19,4 +19,4 @@ Unfortunately, progress has been a bit slow as I am working on many things. So f
 uses their creativity, there's a forest somewhere in there. Right now I am working on a few other things (including improving my skills in ML and working with images) so 
 hopefuully very soon you will see updates! 
 
-![An image of a GAN forest](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![An image of a GAN forest](gan_forest.png)
